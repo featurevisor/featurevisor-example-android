@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Featurevisor Example</string>
+    <string name="title">Featurevisor for Android</string>
+    <string name="subtitle">Evaluating mobile_experience with the Featurevisor Java SDK.</string>
+    <string name="loading_datafile">Loading datafile…</string>
+    <string name="try_again">Try again</string>
+    <string name="unknown_error">An unknown error occurred.</string>
+    <string name="no_value">none</string>
+    <string name="mobile_experience_key">mobile_experience</string>
+    <string name="flag_label">Flag</string>
+    <string name="variation_label">Variation</string>
+    <string name="variable_label">Welcome message variable</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+</resources>

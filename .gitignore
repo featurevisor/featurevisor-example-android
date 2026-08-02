@@ -1,0 +1,46 @@
+# Android Studio and Gradle local state
+.gradle/
+.kotlin/
+.idea/
+.vscode/
+.fleet/
+.settings/
+.project
+.classpath
+*.iml
+local.properties
+
+# Build output
+build/
+app/build/
+/app/release/
+out/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Local environment, credentials, and signing files
+.env
+.env.*
+!.env.example
+secrets.properties
+keystore.properties
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+google-services.json
+service-account*.json
+
+# Operating system files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.log
