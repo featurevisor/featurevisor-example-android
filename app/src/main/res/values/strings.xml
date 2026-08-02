@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Featurevisor Example</string>
     <string name="title">Featurevisor for Android</string>
-    <string name="subtitle">Evaluating mobile_experience with the Featurevisor Java SDK.</string>
+    <string name="subtitle">Evaluating mobile_experience with the Featurevisor SDK.</string>
     <string name="loading_datafile">Loading datafile…</string>
     <string name="try_again">Try again</string>
     <string name="unknown_error">An unknown error occurred.</string>

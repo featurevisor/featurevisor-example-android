@@ -1,21 +1,23 @@
 # featurevisor-example-android
 
-A small Android application showing how to use the [Featurevisor Java SDK](https://github.com/featurevisor/featurevisor-java) from Java.
+A small Android application written entirely in Kotlin, showing how to use the [Featurevisor SDK](https://github.com/featurevisor/featurevisor-java).
 
 The application downloads a Featurevisor datafile, creates an SDK instance, and evaluates the `mobile_experience` feature as a flag, variation, and string variable.
 
 ## Requirements
 
-Install Android Studio with Android SDK 37 and JDK 17.
+Install Android Studio with Android SDK 36 and JDK 17.
 
-The Featurevisor Java SDK is published through GitHub Packages. Create a GitHub personal access token with the `read:packages` scope, then add these values to `~/.gradle/gradle.properties`:
+The project uses the Kotlin support built into Android Gradle Plugin 9, so it does not require the older Kotlin Android Gradle plugin.
+
+The Featurevisor SDK is published through GitHub Packages. Create a GitHub personal access token with the `read:packages` scope, then add these values to `~/.gradle/gradle.properties`:
 
 ```properties
 gpr.user=YOUR_GITHUB_USERNAME
 gpr.key=YOUR_GITHUB_TOKEN
 ```
 
-Keep these credentials outside the repository. For GitHub Actions, grant the example repository access to the `featurevisor-java` package.
+Keep these credentials outside the repository. For GitHub Actions, grant the example repository access to the Featurevisor SDK package.
 
 ## Run the application
 
@@ -32,25 +34,26 @@ The application fetches this production datafile:
 https://featurevisor-example-cloudflare.pages.dev/production/featurevisor-mobile.json
 ```
 
-The important SDK usage is in `MainActivity.java`:
+The important SDK usage is in `MainActivity.kt`:
 
-```java
-DatafileContent datafile = DatafileContent.fromJson(datafileJson);
-Featurevisor f = Featurevisor.createFeaturevisor(
-    new Featurevisor.FeaturevisorOptions().datafile(datafile)
-);
+```kotlin
+val datafile = DatafileContent.fromJson(datafileJson)
+val f = Featurevisor.createFeaturevisor(
+    Featurevisor.FeaturevisorOptions().datafile(datafile),
+)
 
-Map<String, Object> context = new HashMap<>();
-context.put("userId", "mobile-user");
-context.put("country", "nl");
+val context = mapOf<String, Any>(
+    "userId" to "mobile-user",
+    "country" to "nl",
+)
 
-boolean enabled = f.isEnabled("mobile_experience", context);
-String variation = f.getVariation("mobile_experience", context);
-String message = f.getVariableString(
+val enabled = f.isEnabled("mobile_experience", context)
+val variation = f.getVariation("mobile_experience", context)
+val message = f.getVariableString(
     "mobile_experience",
     "welcome_message",
-    context
-);
+    context,
+)
 ```
 
 ## Checks
@@ -61,4 +64,4 @@ Run the unit tests, Android lint, and a debug build with:
 ./gradlew testDebugUnitTest lintDebug assembleDebug
 ```
 
-Learn more in the [Featurevisor Java SDK documentation](https://featurevisor.com/docs/sdks/java/).
+Learn more in the [Featurevisor SDK documentation](https://featurevisor.com/docs/sdks/java/).
