@@ -25,7 +25,7 @@ android {
 }
 
 dependencies {
-    implementation("com.featurevisor:featurevisor-java:3.0.0")
+    implementation("com.featurevisor:featurevisor-java:4.0.0")
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 

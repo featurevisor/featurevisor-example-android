@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.TextView
 import com.featurevisor.sdk.DatafileContent
 import com.featurevisor.sdk.Featurevisor
+import com.featurevisor.sdk.FeaturevisorLogLevel
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.concurrent.Executors
@@ -20,7 +21,10 @@ class MainActivity : Activity() {
     private lateinit var errorMessage: TextView
     private lateinit var flagValue: TextView
     private lateinit var variationValue: TextView
-    private lateinit var variableValue: TextView
+    private lateinit var maxItemsValue: TextView
+    private lateinit var paymentMethodsValue: TextView
+    private lateinit var serviceEndpointValue: TextView
+    private lateinit var supportContactValue: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,10 +36,12 @@ class MainActivity : Activity() {
         errorMessage = findViewById(R.id.error_message)
         flagValue = findViewById(R.id.flag_value)
         variationValue = findViewById(R.id.variation_value)
-        variableValue = findViewById(R.id.variable_value)
+        maxItemsValue = findViewById(R.id.max_items_value)
+        paymentMethodsValue = findViewById(R.id.payment_methods_value)
+        serviceEndpointValue = findViewById(R.id.service_endpoint_value)
+        supportContactValue = findViewById(R.id.support_contact_value)
 
         findViewById<View>(R.id.retry_button).setOnClickListener { loadDatafile() }
-
         loadDatafile()
     }
 
@@ -45,24 +51,44 @@ class MainActivity : Activity() {
         executor.execute {
             try {
                 val datafile = DatafileContent.fromJson(fetchDatafile())
-                val loadedF = Featurevisor.createFeaturevisor(
-                    Featurevisor.FeaturevisorOptions().datafile(datafile),
-                )
                 val context = mapOf<String, Any>(
-                    "userId" to "mobile-user",
+                    "userId" to "customer-123",
                     "country" to "nl",
+                    "locale" to "nl-NL",
+                    "accountPlan" to "pro",
+                )
+                val loadedF = Featurevisor.createFeaturevisor(
+                    Featurevisor.FeaturevisorOptions()
+                        .datafile(datafile)
+                        .context(context)
+                        .logLevel(FeaturevisorLogLevel.ERROR),
                 )
 
-                val enabled = loadedF.isEnabled("mobile_experience", context)
-                val variation = loadedF.getVariation("mobile_experience", context)
-                val welcomeMessage = loadedF.getVariableString(
-                    "mobile_experience",
-                    "welcome_message",
-                    context,
+                val enabled = loadedF.isEnabled("commerce_platform")
+                val variation = loadedF.getVariation("checkout_experience")
+                val maxItems = loadedF.getVariableInteger(
+                    "checkout_experience",
+                    "max_items",
                 )
+                val paymentMethods = loadedF.getVariableArray(
+                    "checkout_experience",
+                    "payment_methods",
+                )
+                val endpoints = loadedF.getVariableObject<Map<String, Any>>(
+                    "serviceEndpoints",
+                )
+                val supportContact = loadedF.getVariableString("supportContact")
 
                 runOnUiThread {
-                    showResults(loadedF, enabled, variation, welcomeMessage)
+                    showResults(
+                        loadedF,
+                        enabled,
+                        variation,
+                        maxItems,
+                        paymentMethods,
+                        endpoints,
+                        supportContact,
+                    )
                 }
             } catch (exception: Exception) {
                 runOnUiThread { showError(exception.message) }
@@ -78,11 +104,9 @@ class MainActivity : Activity() {
 
         return try {
             val statusCode = connection.responseCode
-
             if (statusCode !in 200..299) {
                 error("Datafile request failed with HTTP $statusCode.")
             }
-
             connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
         } finally {
             connection.disconnect()
@@ -99,7 +123,10 @@ class MainActivity : Activity() {
         loadedF: Featurevisor,
         enabled: Boolean,
         variation: String?,
-        welcomeMessage: String?,
+        maxItems: Int?,
+        paymentMethods: List<String>?,
+        endpoints: Map<String, Any>?,
+        supportContact: String?,
     ) {
         if (isFinishing || isDestroyed) {
             loadedF.close()
@@ -111,7 +138,10 @@ class MainActivity : Activity() {
 
         flagValue.setText(if (enabled) R.string.enabled else R.string.disabled)
         variationValue.text = variation ?: getString(R.string.no_value)
-        variableValue.text = welcomeMessage ?: getString(R.string.no_value)
+        maxItemsValue.text = maxItems?.toString() ?: getString(R.string.no_value)
+        paymentMethodsValue.text = paymentMethods?.joinToString() ?: getString(R.string.no_value)
+        serviceEndpointValue.text = endpoints?.get("baseUrl")?.toString() ?: getString(R.string.no_value)
+        supportContactValue.text = supportContact ?: getString(R.string.no_value)
         loadingView.visibility = View.GONE
         errorView.visibility = View.GONE
         resultsView.visibility = View.VISIBLE
@@ -136,6 +166,6 @@ class MainActivity : Activity() {
 
     private companion object {
         const val DATAFILE_URL =
-            "https://featurevisor-example-cloudflare.pages.dev/production/featurevisor-mobile.json"
+            "https://featurevisor-example-cloudflare.pages.dev/production/featurevisor-sdk-v3.json"
     }
 }
