@@ -8,34 +8,35 @@ import org.junit.Test
 
 class FeaturevisorTest {
     @Test
-    fun evaluatesMobileExperience() {
+    fun evaluatesFeaturesAndGlobalVariables() {
         val json = requireNotNull(
-            javaClass.classLoader?.getResource("featurevisor-mobile.json"),
+            javaClass.classLoader?.getResource("featurevisor-sdk-v3.json"),
         ).readText()
-        val f = Featurevisor.createFeaturevisor(
-            Featurevisor.FeaturevisorOptions().datafile(
-                DatafileContent.fromJson(json),
-            ),
-        )
         val context = mapOf<String, Any>(
-            "userId" to "mobile-user",
+            "userId" to "customer-123",
             "country" to "nl",
+            "locale" to "nl-NL",
+            "accountPlan" to "pro",
+        )
+        val f = Featurevisor.createFeaturevisor(
+            Featurevisor.FeaturevisorOptions()
+                .datafile(DatafileContent.fromJson(json))
+                .context(context),
         )
 
         try {
-            assertTrue(f.isEnabled("mobile_experience", context))
+            assertTrue(f.isEnabled("commerce_platform"))
+            assertEquals("express", f.getVariation("checkout_experience"))
+            assertEquals(25, f.getVariableInteger("checkout_experience", "max_items"))
             assertEquals(
-                "treatment",
-                f.getVariation("mobile_experience", context),
+                listOf("card", "wallet"),
+                f.getVariableArray("checkout_experience", "payment_methods"),
             )
             assertEquals(
-                "Welkom",
-                f.getVariableString(
-                    "mobile_experience",
-                    "welcome_message",
-                    context,
-                ),
+                "https://api.eu.example.com",
+                f.getVariableObject<Map<String, Any>>("serviceEndpoints")["baseUrl"],
             )
+            assertEquals("support-nl@example.com", f.getVariableString("supportContact"))
         } finally {
             f.close()
         }
